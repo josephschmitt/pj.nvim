@@ -12,7 +12,7 @@ M.defaults = {
   -- Picker settings
   picker = {
     type = "snacks",
-    prompt = "Projects> ",
+    prompt = "PJ Projects> ",
 
     -- fzf-lua specific settings
     fzf_lua = {

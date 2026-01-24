@@ -36,7 +36,7 @@ M.open = function(opts)
     return
   end
 
-  -- Open the picker with custom action
+  -- Open the picker
   snacks.picker({
     items = projects,
     prompt = config.picker.prompt,
@@ -45,8 +45,6 @@ M.open = function(opts)
       if not item then
         return
       end
-
-      picker:close()
 
       -- Handle different open modes based on opts
       if opts.split then

@@ -36,34 +36,36 @@ M.open = function(opts)
     return
   end
 
-  -- Configure picker
-  local picker_opts = {
+  -- Open the picker with custom action
+  snacks.picker.pick(projects, {
     prompt = config.picker.prompt,
     format = "file",
-  }
+    actions = {
+      ["<cr>"] = function(picker, items)
+        if not items or #items == 0 then
+          return
+        end
 
-  -- Open the picker
-  snacks.picker.pick(projects, picker_opts, function(selected)
-    if not selected then
-      return
-    end
+        local item = items[1]
+        picker:close()
 
-    -- Schedule the action to run after picker closes
-    vim.schedule(function()
-      -- Handle different open modes based on opts
-      if opts.split then
-        vim.cmd("split")
-      elseif opts.vsplit then
-        vim.cmd("vsplit")
-      elseif opts.tab then
-        vim.cmd("tabnew")
-      end
+        vim.schedule(function()
+          -- Handle different open modes based on opts
+          if opts.split then
+            vim.cmd("split")
+          elseif opts.vsplit then
+            vim.cmd("vsplit")
+          elseif opts.tab then
+            vim.cmd("tabnew")
+          end
 
-      -- Switch to project (handles directory change and session loading)
-      local session = require("pj.session")
-      session.switch_to_project(selected.data.path, selected.data.name, config)
-    end)
-  end)
+          -- Switch to project (handles directory change and session loading)
+          local session = require("pj.session")
+          session.switch_to_project(item.data.path, item.data.name, config)
+        end)
+      end,
+    },
+  })
 end
 
 return M

@@ -36,6 +36,13 @@ M.open = function(opts)
     return
   end
 
+  -- Add icons to item text if available
+  for _, project in ipairs(projects) do
+    if project.data.icon then
+      project.text = project.data.icon .. " " .. project.text
+    end
+  end
+
   -- Open the picker
   snacks.picker({
     title = "PJ Projects",

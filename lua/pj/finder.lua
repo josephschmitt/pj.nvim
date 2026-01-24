@@ -20,14 +20,30 @@ M.get_projects = function(opts)
     table.insert(cmd_args, "--icons")
   end
 
-  -- Execute command
-  local result = vim.fn.systemlist(table.concat(cmd_args, " "))
-
-  if vim.v.shell_error ~= 0 then
-    return nil, "pj command failed: " .. table.concat(result, "\n")
+  if config.pj.json then
+    table.insert(cmd_args, "--json")
   end
 
-  return M.parse_output(result, config.pj.icons)
+  -- Execute command
+  local result
+  if config.pj.json then
+    -- For JSON output, we need the full string, not lines
+    result = vim.fn.system(table.concat(cmd_args, " "))
+  else
+    result = vim.fn.systemlist(table.concat(cmd_args, " "))
+  end
+
+  if vim.v.shell_error ~= 0 then
+    local err_msg = type(result) == "table" and table.concat(result, "\n") or result
+    return nil, "pj command failed: " .. err_msg
+  end
+
+  -- Parse output based on mode
+  if config.pj.json then
+    return M.parse_json_output(result, config.pj.icons)
+  else
+    return M.parse_output(result, config.pj.icons)
+  end
 end
 
 -- Parse pj output into picker items
@@ -66,6 +82,37 @@ M.parse_output = function(lines, has_icons)
         },
       })
     end
+  end
+
+  return items
+end
+
+-- Parse JSON output from pj into picker items
+M.parse_json_output = function(json_str, has_icons)
+  local ok, data = pcall(vim.fn.json_decode, json_str)
+  if not ok or not data or not data.projects then
+    return nil, "Failed to parse JSON output"
+  end
+
+  local items = {}
+  local icons_module = require("pj.icons")
+
+  for _, project in ipairs(data.projects) do
+    local path = vim.fn.expand(project.path)
+    local icon, icon_hl = icons_module.get_icon_hl(project.marker, project.icon)
+
+    table.insert(items, {
+      text = project.name,
+      file = path,
+      data = {
+        path = path,
+        icon = icon,
+        icon_hl = icon_hl,
+        marker = project.marker,
+        name = project.name,
+        display_path = vim.fn.fnamemodify(path, ":~"),
+      },
+    })
   end
 
   return items

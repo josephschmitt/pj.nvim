@@ -62,8 +62,10 @@ M.open = function(opts)
       return {
         value = project,
         display = function(entry)
+          -- Use icon_hl if available, otherwise fallback to TelescopeResultsIcon
+          local icon_hl = entry.value.data.icon_hl or "TelescopeResultsIcon"
           return displayer({
-            { entry.value.data.icon or "", "TelescopeResultsIcon" },
+            { entry.value.data.icon or "", icon_hl },
             { entry.value.data.name, "TelescopeResultsIdentifier" },
             { entry.value.data.display_path, "TelescopeResultsComment" },
           })

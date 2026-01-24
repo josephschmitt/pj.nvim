@@ -1,5 +1,27 @@
 local M = {}
 
+-- Custom format function with colored icons
+local function pj_format(item, picker)
+  local ret = {}
+  local data = item.data
+
+  -- Icon with highlight
+  if data.icon and data.icon ~= "" then
+    local hl = data.icon_hl or "SnacksPickerIcon"
+    ret[#ret + 1] = { data.icon, hl, virtual = true }
+    ret[#ret + 1] = { " ", virtual = true }
+  end
+
+  -- Project name
+  ret[#ret + 1] = { data.name, "SnacksPickerFile" }
+  ret[#ret + 1] = { " " }
+
+  -- Path (dimmed)
+  ret[#ret + 1] = { data.display_path, "SnacksPickerDir" }
+
+  return ret
+end
+
 M.open = function(opts)
   opts = opts or {}
   local config = require("pj.config").options
@@ -36,18 +58,11 @@ M.open = function(opts)
     return
   end
 
-  -- Add icons to item text if available
-  for _, project in ipairs(projects) do
-    if project.data.icon then
-      project.text = project.data.icon .. " " .. project.text
-    end
-  end
-
   -- Open the picker
   snacks.picker({
     title = "PJ Projects",
     items = projects,
-    format = "file",
+    format = pj_format,
     confirm = function(picker, item)
       if not item then
         return

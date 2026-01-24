@@ -36,23 +36,57 @@ M.open = function(opts)
     return
   end
 
-  -- Format entries for display
+  -- Helper to get ANSI color from highlight group
+  local function get_ansi_color(hl_group)
+    if not hl_group then return "" end
+    local hl = vim.api.nvim_get_hl(0, { name = hl_group, link = false })
+    if hl.fg then
+      local fg = hl.fg
+      local r = math.floor(fg / 65536)
+      local g = math.floor((fg % 65536) / 256)
+      local b = fg % 256
+      return string.format("\27[38;2;%d;%d;%dm", r, g, b)
+    end
+    return ""
+  end
+
+  local ansi_reset = "\27[0m"
+
+  -- Format entries for display with icon highlighting
   local entries = {}
   for _, project in ipairs(projects) do
-    local display = project.data.icon and
-      (project.data.icon .. " " .. project.data.name) or
-      project.data.name
-    -- Store path as hidden data after delimiter
-    table.insert(entries, display .. " " .. project.data.display_path .. "|" .. project.data.path)
+    local icon = project.data.icon or ""
+    local icon_hl = project.data.icon_hl
+
+    -- Apply ANSI color to icon if we have a highlight group
+    local colored_icon = icon
+    if icon ~= "" and icon_hl then
+      local color = get_ansi_color(icon_hl)
+      if color ~= "" then
+        colored_icon = color .. icon .. ansi_reset
+      end
+    end
+
+    -- Format: colored_icon name path|actual_path
+    local display = string.format("%s %s %s|%s",
+      colored_icon,
+      project.data.name,
+      project.data.display_path,
+      project.data.path)
+
+    table.insert(entries, display)
   end
 
   -- Create action handlers
   local function handle_selection(selected, opts_inner)
     if not selected or #selected == 0 then return end
-    local path = selected[1]:match("|(.+)$")
+    -- Extract path from the encoded entry (after the last |)
+    -- Strip ANSI codes first to handle colored icons
+    local cleaned = selected[1]:gsub("\27%[[0-9;]*m", "")
+    local path = cleaned:match("|(.+)$")
     if not path then
       -- Fallback if delimiter not found
-      path = selected[1]
+      path = cleaned
     end
 
     -- Handle window mode
@@ -100,6 +134,7 @@ M.open = function(opts)
     },
     fzf_opts = {
       ["--header"] = "Enter=open, C-x=split, C-v=vsplit, C-t=tab",
+      ["--ansi"] = "", -- Enable ANSI color codes
     },
   })
 end

@@ -7,6 +7,7 @@ M.defaults = {
     args = {},
     icons = true,
     cache = true,
+    json = true,
   },
 
   -- Picker settings

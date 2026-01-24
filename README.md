@@ -12,6 +12,8 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 - 🎯 Icon support with Nerd Fonts
 - ⌨️ Consistent keybindings across all pickers
 - 🪟 Split, vsplit, and tab support
+- 🗂️ Tab-local directory changing (matches Snacks behavior)
+- 💼 Optional session manager integration (auto-session, persistence.nvim)
 - 🔧 Extensible architecture for adding more pickers
 
 ## Requirements
@@ -27,6 +29,8 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 
 **Optional:**
 - [Nerd Fonts](https://www.nerdfonts.com/) - For icon display
+- [auto-session](https://github.com/rmagatti/auto-session) - For session management
+- [persistence.nvim](https://github.com/folke/persistence.nvim) - Alternative session manager
 
 ## Installation
 
@@ -152,8 +156,10 @@ require("pj").setup({
   -- Behavior settings
   behavior = {
     cd_on_select = true,           -- Change directory when selecting a project
+    cd_scope = "tab",              -- "tab" (tcd) or "global" (cd)
     close_on_select = true,        -- Close picker after selection
     notify_on_error = true,        -- Show error notifications
+    session_manager = nil,         -- nil, "auto-session", or "persistence"
   },
 
   -- Keymaps (within the picker)
@@ -165,6 +171,51 @@ require("pj").setup({
   },
 })
 ```
+
+### Session Management Integration
+
+pj.nvim can integrate with session manager plugins to automatically restore your workspace when switching projects. This matches the behavior of Snacks' projects picker.
+
+#### With auto-session
+
+```lua
+require("pj").setup({
+  behavior = {
+    session_manager = "auto-session",
+    cd_scope = "tab",  -- Recommended with session managers
+  },
+})
+```
+
+#### With persistence.nvim
+
+```lua
+require("pj").setup({
+  behavior = {
+    session_manager = "persistence",
+    cd_scope = "tab",
+  },
+})
+```
+
+When a session manager is configured:
+- Selecting a project will try to restore its session
+- If no session exists, it just changes the directory
+- Open buffers are closed/restored based on the session
+- Your workspace state (windows, buffers, etc.) is preserved per-project
+
+#### Simple directory change (no sessions)
+
+```lua
+require("pj").setup({
+  behavior = {
+    session_manager = nil,  -- Disable session management
+    cd_scope = "global",     -- Use global cd instead of tcd
+  },
+})
+```
+
+This simpler mode just changes the working directory without affecting buffers.
 
 ### Picker-Specific Configuration
 

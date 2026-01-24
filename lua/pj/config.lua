@@ -40,8 +40,10 @@ M.defaults = {
   -- Behavior settings
   behavior = {
     cd_on_select = true,
+    cd_scope = "tab", -- "global" or "tab" (uses tcd for tab-local, cd for global)
     close_on_select = true,
     notify_on_error = true,
+    session_manager = nil, -- nil, "auto-session", or "persistence"
   },
 
   -- Keymaps

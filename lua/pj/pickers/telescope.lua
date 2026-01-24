@@ -107,11 +107,9 @@ M.open = function(opts)
         vim.cmd("tabnew")
       end
 
-      -- Change directory
-      if config.behavior.cd_on_select then
-        vim.cmd("cd " .. vim.fn.fnameescape(selection.value.data.path))
-        vim.notify("Changed to: " .. selection.value.data.name, vim.log.levels.INFO)
-      end
+      -- Switch to project (handles directory change and session loading)
+      local session = require("pj.session")
+      session.switch_to_project(selection.value.data.path, selection.value.data.name, config)
     end
   end
 

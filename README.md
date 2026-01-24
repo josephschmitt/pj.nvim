@@ -5,25 +5,35 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ## Features
 
 - 🚀 Fast project discovery using the pj binary
-- 🎨 Beautiful picker UI with Snacks.nvim
+- 🎨 Multiple picker UIs: **Snacks**, **Telescope**, **fzf-lua**
 - 🔍 Fuzzy search through your projects
 - 📁 Instantly switch to project directories
 - 💾 Leverages pj's intelligent caching
 - 🎯 Icon support with Nerd Fonts
-- 🔧 Extensible architecture for future picker support (Telescope, FZF)
+- ⌨️ Consistent keybindings across all pickers
+- 🪟 Split, vsplit, and tab support
+- 🔧 Extensible architecture for adding more pickers
 
 ## Requirements
 
+**Core:**
 - Neovim >= 0.9.0
 - [pj](https://github.com/jschaf/pj) - Project finder binary
-- [Snacks.nvim](https://github.com/folke/snacks.nvim) - Picker UI
-- [Nerd Fonts](https://www.nerdfonts.com/) (optional, for icons)
+
+**Picker UI (choose one or more):**
+- [Snacks.nvim](https://github.com/folke/snacks.nvim) - For `snacks` picker (default)
+- [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) - For `telescope` picker
+- [fzf-lua](https://github.com/ibhagwan/fzf-lua) - For `fzf_lua` picker
+
+**Optional:**
+- [Nerd Fonts](https://www.nerdfonts.com/) - For icon display
 
 ## Installation
 
-### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+### With Snacks (default picker)
 
 ```lua
+-- Using lazy.nvim
 {
   "yourusername/pj.nvim",
   dependencies = {
@@ -37,17 +47,63 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 }
 ```
 
-### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+### With Telescope
 
 ```lua
-use {
+-- Using lazy.nvim
+{
   "yourusername/pj.nvim",
-  requires = {
-    "folke/snacks.nvim",
+  dependencies = {
+    "nvim-telescope/telescope.nvim",
   },
-  config = function()
-    require("pj").setup()
-  end
+  cmd = { "Pj", "PjCd" },
+  keys = {
+    { "<leader>fp", "<cmd>Pj<cr>", desc = "Find Projects" },
+  },
+  opts = {
+    picker = { type = "telescope" },
+  },
+}
+```
+
+### With fzf-lua
+
+```lua
+-- Using lazy.nvim
+{
+  "yourusername/pj.nvim",
+  dependencies = {
+    "ibhagwan/fzf-lua",
+  },
+  cmd = { "Pj", "PjCd" },
+  keys = {
+    { "<leader>fp", "<cmd>Pj<cr>", desc = "Find Projects" },
+  },
+  opts = {
+    picker = { type = "fzf_lua" },
+  },
+}
+```
+
+### With All Pickers (for flexibility)
+
+```lua
+-- Using lazy.nvim
+{
+  "yourusername/pj.nvim",
+  dependencies = {
+    "folke/snacks.nvim",
+    "nvim-telescope/telescope.nvim",
+    "ibhagwan/fzf-lua",
+  },
+  cmd = { "Pj", "PjCd" },
+  keys = {
+    { "<leader>fp", "<cmd>Pj<cr>", desc = "Find Projects" },
+  },
+  opts = {
+    -- You can switch between pickers anytime by changing the type
+    picker = { type = "snacks" }, -- or "telescope" or "fzf_lua"
+  },
 }
 ```
 
@@ -67,8 +123,30 @@ require("pj").setup({
 
   -- Picker settings
   picker = {
-    type = "snacks",               -- Picker type (currently only "snacks")
+    type = "snacks",               -- Picker type: "snacks", "telescope", or "fzf_lua"
     prompt = "Projects> ",         -- Picker prompt text
+
+    -- fzf-lua specific settings
+    fzf_lua = {
+      winopts = {
+        height = 0.85,
+        width = 0.80,
+      },
+      preview = {
+        enabled = false,           -- Enable preview window
+        cmd = "ls -la",            -- Command to show preview
+      },
+    },
+
+    -- telescope specific settings
+    telescope = {
+      theme = nil,                 -- "dropdown", "ivy", "cursor", or nil for default
+      layout_config = {
+        width = 0.8,
+        height = 0.9,
+      },
+      previewer = false,           -- Enable file previewer
+    },
   },
 
   -- Behavior settings
@@ -88,15 +166,60 @@ require("pj").setup({
 })
 ```
 
-### Custom Configuration Examples
+### Picker-Specific Configuration
 
-#### Using custom pj configuration
+#### Using Telescope with dropdown theme
+
+```lua
+require("pj").setup({
+  picker = {
+    type = "telescope",
+    telescope = {
+      theme = "dropdown",
+      previewer = true,
+      layout_config = {
+        width = 0.9,
+        height = 0.8,
+      },
+    },
+  },
+})
+```
+
+#### Using fzf-lua with preview
+
+```lua
+require("pj").setup({
+  picker = {
+    type = "fzf_lua",
+    fzf_lua = {
+      winopts = {
+        height = 0.9,
+        width = 0.9,
+        preview = {
+          layout = "vertical",
+          vertical = "up:45%",
+        },
+      },
+      preview = {
+        enabled = true,
+        cmd = "tree -C -L 2",
+      },
+    },
+  },
+})
+```
+
+#### Custom pj configuration
 
 ```lua
 require("pj").setup({
   pj = {
     args = { "--path", "~/work", "--path", "~/personal" },
     icons = true,
+  },
+  picker = {
+    type = "telescope", -- Use your preferred picker
   },
 })
 ```
@@ -163,9 +286,10 @@ Run `:checkhealth pj` to verify your installation and configuration.
 
 The health check will verify:
 - pj binary is installed and accessible
-- Snacks.nvim is available
+- Your configured picker is available (Snacks/Telescope/fzf-lua)
 - Configuration is valid
 - Projects can be discovered
+- Show all available pickers and their status
 
 ## Troubleshooting
 
@@ -180,6 +304,49 @@ go install github.com/jschaf/pj@latest
 # Or specify custom path in config
 require("pj").setup({
   pj = { cmd = "/path/to/pj" }
+})
+```
+
+### Picker not found errors
+
+If you get errors about missing picker dependencies:
+
+**For Snacks picker:**
+```lua
+-- Make sure snacks.nvim is installed
+{
+  "folke/snacks.nvim",
+  -- your snacks config
+}
+```
+
+**For Telescope picker:**
+```lua
+-- Make sure telescope is installed
+{
+  "nvim-telescope/telescope.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" }
+}
+```
+
+**For fzf-lua picker:**
+```lua
+-- Make sure fzf-lua is installed
+{
+  "ibhagwan/fzf-lua",
+  dependencies = { "nvim-tree/nvim-web-devicons" } -- optional for icons
+}
+```
+
+### Switching between pickers
+
+You can easily switch pickers by changing the configuration:
+
+```lua
+require("pj").setup({
+  picker = {
+    type = "telescope", -- Change to "snacks", "telescope", or "fzf_lua"
+  },
 })
 ```
 

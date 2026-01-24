@@ -13,6 +13,28 @@ M.defaults = {
   picker = {
     type = "snacks",
     prompt = "Projects> ",
+
+    -- fzf-lua specific settings
+    fzf_lua = {
+      winopts = {
+        height = 0.85,
+        width = 0.80,
+      },
+      preview = {
+        enabled = false,
+        cmd = "ls -la",
+      },
+    },
+
+    -- telescope specific settings
+    telescope = {
+      theme = nil, -- "dropdown", "ivy", "cursor", or nil for default
+      layout_config = {
+        width = 0.8,
+        height = 0.9,
+      },
+      previewer = false,
+    },
   },
 
   -- Behavior settings

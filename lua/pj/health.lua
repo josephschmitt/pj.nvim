@@ -25,6 +25,8 @@ M.check = function()
 
   -- Check picker availability
   local picker_type = config.picker.type
+  health.start("Picker Dependencies")
+
   if picker_type == "snacks" then
     local ok = pcall(require, "snacks")
     if ok then
@@ -35,6 +37,55 @@ M.check = function()
         "Add to your plugin manager: 'folke/snacks.nvim'",
       })
     end
+  elseif picker_type == "fzf_lua" then
+    local ok = pcall(require, "fzf-lua")
+    if ok then
+      health.ok("fzf-lua found")
+    else
+      health.error("fzf-lua not found", {
+        "Install ibhagwan/fzf-lua",
+        "Add to your plugin manager: 'ibhagwan/fzf-lua'",
+      })
+    end
+  elseif picker_type == "telescope" then
+    local ok = pcall(require, "telescope")
+    if ok then
+      health.ok("Telescope found")
+      -- Check for optional telescope extensions
+      local entry_display_ok = pcall(require, "telescope.pickers.entry_display")
+      if entry_display_ok then
+        health.ok("Telescope entry_display available (enhanced UI)")
+      else
+        health.warn("Telescope entry_display not available (fallback to simple display)")
+      end
+    else
+      health.error("Telescope not found", {
+        "Install nvim-telescope/telescope.nvim",
+        "Add to your plugin manager: 'nvim-telescope/telescope.nvim'",
+      })
+    end
+  else
+    health.error("Unknown picker type: " .. picker_type, {
+      "Supported picker types: snacks, fzf_lua, telescope",
+      "Change picker.type in your configuration",
+    })
+  end
+
+  -- Show available pickers
+  health.info("Available picker types:")
+  local pickers = require("pj.pickers")
+  for name, _ in pairs(pickers.pickers) do
+    local dep_ok = false
+    if name == "snacks" then
+      dep_ok = pcall(require, "snacks")
+    elseif name == "fzf_lua" then
+      dep_ok = pcall(require, "fzf-lua")
+    elseif name == "telescope" then
+      dep_ok = pcall(require, "telescope")
+    end
+
+    local status = dep_ok and "✓" or "✗"
+    health.info("  " .. status .. " " .. name)
   end
 
   -- Check configuration

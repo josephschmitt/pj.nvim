@@ -5,7 +5,12 @@ M.pickers = {
   snacks = function()
     return require("pj.pickers.snacks")
   end,
-  -- Future: telescope, fzf, etc.
+  fzf_lua = function()
+    return require("pj.pickers.fzf_lua")
+  end,
+  telescope = function()
+    return require("pj.pickers.telescope")
+  end,
 }
 
 -- Get the configured picker

@@ -35,7 +35,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ```lua
 -- Using lazy.nvim
 {
-  "yourusername/pj.nvim",
+  "josephschmitt/pj.nvim",
   dependencies = {
     "folke/snacks.nvim",
   },
@@ -52,7 +52,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ```lua
 -- Using lazy.nvim
 {
-  "yourusername/pj.nvim",
+  "josephschmitt/pj.nvim",
   dependencies = {
     "nvim-telescope/telescope.nvim",
   },
@@ -71,7 +71,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ```lua
 -- Using lazy.nvim
 {
-  "yourusername/pj.nvim",
+  "josephschmitt/pj.nvim",
   dependencies = {
     "ibhagwan/fzf-lua",
   },
@@ -90,7 +90,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ```lua
 -- Using lazy.nvim
 {
-  "yourusername/pj.nvim",
+  "josephschmitt/pj.nvim",
   dependencies = {
     "folke/snacks.nvim",
     "nvim-telescope/telescope.nvim",

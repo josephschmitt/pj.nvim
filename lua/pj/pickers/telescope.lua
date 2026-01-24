@@ -115,8 +115,7 @@ M.open = function(opts)
 
   -- Create picker options
   local picker_opts = {
-    prompt_title = "Projects",
-    prompt_prefix = config.picker.prompt,
+    prompt_title = "PJ Projects",
     finder = finders.new_table({
       results = projects,
       entry_maker = make_entry,

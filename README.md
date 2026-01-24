@@ -128,7 +128,6 @@ require("pj").setup({
   -- Picker settings
   picker = {
     type = "snacks",               -- Picker type: "snacks", "telescope", or "fzf_lua"
-    prompt = "PJ Projects> ",      -- Picker prompt text
 
     -- fzf-lua specific settings
     fzf_lua = {

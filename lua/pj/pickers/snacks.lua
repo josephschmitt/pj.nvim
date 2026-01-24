@@ -38,8 +38,8 @@ M.open = function(opts)
 
   -- Open the picker
   snacks.picker({
+    title = "PJ Projects",
     items = projects,
-    prompt = config.picker.prompt,
     format = "file",
     confirm = function(picker, item)
       if not item then

@@ -75,7 +75,7 @@ M.open = function(opts)
 
   -- Configure and open fzf-lua
   fzf_lua.fzf_exec(entries, {
-    prompt = config.picker.prompt,
+    prompt = "PJ Projects> ",
     winopts = fzf_config.winopts or {
       height = 0.85,
       width = 0.80,

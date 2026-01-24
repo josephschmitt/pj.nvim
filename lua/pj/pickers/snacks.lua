@@ -48,18 +48,21 @@ M.open = function(opts)
       return
     end
 
-    -- Handle different open modes based on opts
-    if opts.split then
-      vim.cmd("split")
-    elseif opts.vsplit then
-      vim.cmd("vsplit")
-    elseif opts.tab then
-      vim.cmd("tabnew")
-    end
+    -- Schedule the action to run after picker closes
+    vim.schedule(function()
+      -- Handle different open modes based on opts
+      if opts.split then
+        vim.cmd("split")
+      elseif opts.vsplit then
+        vim.cmd("vsplit")
+      elseif opts.tab then
+        vim.cmd("tabnew")
+      end
 
-    -- Switch to project (handles directory change and session loading)
-    local session = require("pj.session")
-    session.switch_to_project(selected.data.path, selected.data.name, config)
+      -- Switch to project (handles directory change and session loading)
+      local session = require("pj.session")
+      session.switch_to_project(selected.data.path, selected.data.name, config)
+    end)
   end)
 end
 

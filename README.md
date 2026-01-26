@@ -2,7 +2,7 @@
 
 ![image](https://github.com/user-attachments/assets/7cf1d085-5604-48b6-8e56-33bd0a78dbde)
 
-A Neovim plugin for quickly finding and navigating to projects using [pj](https://github.com/jschaf/pj).
+A Neovim plugin for quickly finding and navigating to projects using [pj](https://github.com/josephschmitt/pj).
 
 ## Features
 

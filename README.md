@@ -22,7 +22,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 
 **Core:**
 - Neovim >= 0.9.0
-- [pj](https://github.com/jschaf/pj) - Project finder binary
+- [pj](https://github.com/josephschmitt/pj) - Project finder binary
 
 **Picker UI (choose one or more):**
 - [Snacks.nvim](https://github.com/folke/snacks.nvim) - For `snacks` picker (default)

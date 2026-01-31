@@ -11,6 +11,9 @@ M.pickers = {
   telescope = function()
     return require("pj.pickers.telescope")
   end,
+  tv = function()
+    return require("pj.pickers.tv")
+  end,
 }
 
 -- Get the configured picker

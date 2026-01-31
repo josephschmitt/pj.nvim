@@ -7,7 +7,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ## Features
 
 - 🚀 Fast project discovery using the pj binary
-- 🎨 Multiple picker UIs: **Snacks**, **Telescope**, **fzf-lua**
+- 🎨 Multiple picker UIs: **Snacks**, **Telescope**, **fzf-lua**, **tv (television)**
 - 🔍 Fuzzy search through your projects
 - 📁 Instantly switch to project directories
 - 💾 Leverages pj's intelligent caching
@@ -28,6 +28,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 - [Snacks.nvim](https://github.com/folke/snacks.nvim) - For `snacks` picker (default)
 - [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) - For `telescope` picker
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua) - For `fzf_lua` picker
+- [television](https://github.com/alexpasmantier/television) - For `tv` picker
 
 **Optional:**
 - [Nerd Fonts](https://www.nerdfonts.com/) - For icon display
@@ -91,6 +92,24 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 }
 ```
 
+### With television
+
+```lua
+-- Using lazy.nvim
+{
+  "josephschmitt/pj.nvim",
+  cmd = { "Pj", "PjCd" },
+  keys = {
+    { "<leader>fp", "<cmd>Pj<cr>", desc = "Find Projects" },
+  },
+  opts = {
+    picker = { type = "tv" },
+  },
+}
+```
+
+**Note:** The `tv` picker requires the [television](https://github.com/alexpasmantier/television) binary to be installed. It does not require tv.nvim.
+
 ### With All Pickers (for flexibility)
 
 ```lua
@@ -108,7 +127,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
   },
   opts = {
     -- You can switch between pickers anytime by changing the type
-    picker = { type = "snacks" }, -- or "telescope" or "fzf_lua"
+    picker = { type = "snacks" }, -- or "telescope", "fzf_lua", or "tv"
   },
 }
 ```
@@ -129,7 +148,7 @@ require("pj").setup({
 
   -- Picker settings
   picker = {
-    type = "snacks",               -- Picker type: "snacks", "telescope", or "fzf_lua"
+    type = "snacks",               -- Picker type: "snacks", "telescope", "fzf_lua", or "tv"
 
     -- fzf-lua specific settings
     fzf_lua = {
@@ -151,6 +170,16 @@ require("pj").setup({
         height = 0.9,
       },
       previewer = false,           -- Enable file previewer
+    },
+
+    -- tv (television) specific settings
+    tv = {
+      tv_binary = "tv",            -- Path to tv binary
+      preview = {
+        enabled = false,           -- Enable preview window
+        cmd = "ls -la {}",         -- Preview command (use {} as placeholder)
+        size = 50,                 -- Preview window size percentage
+      },
     },
   },
 
@@ -256,6 +285,23 @@ require("pj").setup({
       preview = {
         enabled = true,
         cmd = "tree -C -L 2",
+      },
+    },
+  },
+})
+```
+
+#### Using television with preview
+
+```lua
+require("pj").setup({
+  picker = {
+    type = "tv",
+    tv = {
+      preview = {
+        enabled = true,
+        cmd = "tree -C -L 2 {}",
+        size = 70,
       },
     },
   },
@@ -390,6 +436,19 @@ If you get errors about missing picker dependencies:
 }
 ```
 
+**For tv picker:**
+```bash
+# Install television binary (choose one method)
+
+# macOS (Homebrew)
+brew install television
+
+# Cargo (Rust)
+cargo install television
+
+# Or download from: https://github.com/alexpasmantier/television/releases
+```
+
 ### Switching between pickers
 
 You can easily switch pickers by changing the configuration:
@@ -397,7 +456,7 @@ You can easily switch pickers by changing the configuration:
 ```lua
 require("pj").setup({
   picker = {
-    type = "telescope", -- Change to "snacks", "telescope", or "fzf_lua"
+    type = "telescope", -- Change to "snacks", "telescope", "fzf_lua", or "tv"
   },
 })
 ```
@@ -426,8 +485,9 @@ Make sure you have a Nerd Font installed and configured in your terminal.
 
 ## Future Enhancements
 
-- [ ] Support for Telescope picker
-- [ ] Support for FZF picker
+- [x] Support for Telescope picker
+- [x] Support for FZF picker
+- [x] Support for television picker
 - [ ] Custom project actions
 - [ ] Recent projects tracking
 - [ ] Project-specific configurations

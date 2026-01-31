@@ -64,9 +64,26 @@ M.check = function()
         "Add to your plugin manager: 'nvim-telescope/telescope.nvim'",
       })
     end
+  elseif picker_type == "tv" then
+    -- Check for television binary
+    local tv_binary = config.picker.tv and config.picker.tv.tv_binary or "tv"
+    local tv_found = vim.fn.executable(tv_binary) == 1
+    if tv_found then
+      health.ok("television binary found: " .. tv_binary)
+      -- Try to get version
+      local version = vim.fn.system(tv_binary .. " --version 2>&1")
+      if vim.v.shell_error == 0 then
+        health.info("television version: " .. vim.trim(version))
+      end
+    else
+      health.error("television binary not found", {
+        "Install television from: https://github.com/alexpasmantier/television",
+        "Or configure custom path in setup(): require('pj').setup({ picker = { tv = { tv_binary = '/path/to/tv' } } })",
+      })
+    end
   else
     health.error("Unknown picker type: " .. picker_type, {
-      "Supported picker types: snacks, fzf_lua, telescope",
+      "Supported picker types: snacks, fzf_lua, telescope, tv",
       "Change picker.type in your configuration",
     })
   end
@@ -82,6 +99,9 @@ M.check = function()
       dep_ok = pcall(require, "fzf-lua")
     elseif name == "telescope" then
       dep_ok = pcall(require, "telescope")
+    elseif name == "tv" then
+      local tv_binary = config.picker.tv and config.picker.tv.tv_binary or "tv"
+      dep_ok = vim.fn.executable(tv_binary) == 1
     end
 
     local status = dep_ok and "✓" or "✗"

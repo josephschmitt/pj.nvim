@@ -35,6 +35,16 @@ M.defaults = {
       },
       previewer = false,
     },
+
+    -- tv specific settings
+    tv = {
+      tv_binary = "tv", -- Path to tv binary
+      preview = {
+        enabled = false,
+        cmd = "ls -la {}", -- Preview command (use {} as placeholder)
+        size = 50, -- Preview window size percentage
+      },
+    },
   },
 
   -- Behavior settings
@@ -52,6 +62,15 @@ M.defaults = {
     split = "<C-x>",
     vsplit = "<C-v>",
     tab = "<C-t>",
+    depth_increase = "<C-l>", -- Increase depth (show more nested projects)
+    depth_decrease = "<C-h>", -- Decrease depth (show fewer nested projects)
+  },
+
+  -- Depth settings for project tree display
+  depth = {
+    initial = nil, -- nil means use pj's default
+    min = 1,
+    max = 10,
   },
 }
 
@@ -59,6 +78,11 @@ M.options = {}
 
 M.setup = function(opts)
   M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
+
+  -- Initialize depth module with config
+  local depth = require("pj.depth")
+  depth.setup(M.options)
+
   return M.options
 end
 

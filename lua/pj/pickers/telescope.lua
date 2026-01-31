@@ -1,5 +1,12 @@
 local M = {}
 
+local depth_module = require("pj.depth")
+
+-- Get picker title with depth indicator
+local function get_title()
+  return string.format("PJ Projects (%s)", depth_module.get_display())
+end
+
 M.open = function(opts)
   opts = opts or {}
   local config = require("pj.config").options
@@ -115,9 +122,54 @@ M.open = function(opts)
     end
   end
 
+  -- Create a function to build a new finder with current projects
+  local function create_finder()
+    local current_projects, current_err = finder.get_projects(opts)
+    if current_err or not current_projects then
+      return nil
+    end
+    return finders.new_table({
+      results = current_projects,
+      entry_maker = make_entry,
+    })
+  end
+
+  -- Depth control handlers
+  local keymaps = config.keymaps or {}
+
+  local function handle_depth_increase(prompt_bufnr)
+    local _, changed = depth_module.increment()
+    if changed then
+      local picker = action_state.get_current_picker(prompt_bufnr)
+      local new_finder = create_finder()
+      if new_finder then
+        picker:refresh(new_finder, { reset_prompt = false })
+        picker.prompt_border:change_title(get_title())
+        vim.notify(depth_module.get_display(), vim.log.levels.INFO)
+      end
+    else
+      vim.notify("Already at maximum depth", vim.log.levels.WARN)
+    end
+  end
+
+  local function handle_depth_decrease(prompt_bufnr)
+    local _, changed = depth_module.decrement()
+    if changed then
+      local picker = action_state.get_current_picker(prompt_bufnr)
+      local new_finder = create_finder()
+      if new_finder then
+        picker:refresh(new_finder, { reset_prompt = false })
+        picker.prompt_border:change_title(get_title())
+        vim.notify(depth_module.get_display(), vim.log.levels.INFO)
+      end
+    else
+      vim.notify("Already at minimum depth", vim.log.levels.WARN)
+    end
+  end
+
   -- Create picker options
   local picker_opts = {
-    prompt_title = "PJ Projects",
+    prompt_title = get_title(),
     finder = finders.new_table({
       results = projects,
       entry_maker = make_entry,
@@ -129,6 +181,16 @@ M.open = function(opts)
       map("i", "<C-x>", handle_selection(true, "split"))
       map("i", "<C-v>", handle_selection(true, "vsplit"))
       map("i", "<C-t>", handle_selection(true, "tab"))
+
+      -- Map depth controls
+      if keymaps.depth_increase then
+        map("i", keymaps.depth_increase, handle_depth_increase)
+        map("n", keymaps.depth_increase, handle_depth_increase)
+      end
+      if keymaps.depth_decrease then
+        map("i", keymaps.depth_decrease, handle_depth_decrease)
+        map("n", keymaps.depth_decrease, handle_depth_decrease)
+      end
 
       return true
     end,

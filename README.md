@@ -198,6 +198,15 @@ require("pj").setup({
     split = "<C-x>",               -- Open in horizontal split
     vsplit = "<C-v>",              -- Open in vertical split
     tab = "<C-t>",                 -- Open in new tab
+    depth_increase = "<C-l>",      -- Increase search depth
+    depth_decrease = "<C-h>",      -- Decrease search depth
+  },
+
+  -- Depth settings for project tree display
+  depth = {
+    initial = nil,                 -- Starting depth (nil = use pj's default of 3)
+    min = 1,                       -- Minimum depth
+    max = 10,                      -- Maximum depth
   },
 })
 ```
@@ -347,6 +356,7 @@ require("pj").setup({
 ### Commands
 
 - `:Pj` - Open the project picker
+- `:Pj depth=N` - Open picker at specific depth (e.g., `:Pj depth=2`)
 - `:PjCd` - Open picker (alias for changing directory)
 
 ### Keymaps

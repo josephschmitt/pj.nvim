@@ -24,6 +24,17 @@ M.get_projects = function(opts)
     table.insert(cmd_args, "--json")
   end
 
+  -- Add depth if specified (runtime or from depth module)
+  local depth = opts.depth
+  if depth == nil then
+    local depth_module = require("pj.depth")
+    depth = depth_module.get_current()
+  end
+  if depth then
+    table.insert(cmd_args, "--max-depth")
+    table.insert(cmd_args, tostring(depth))
+  end
+
   -- Execute command
   local result
   if config.pj.json then

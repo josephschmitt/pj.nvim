@@ -1,5 +1,12 @@
 local M = {}
 
+local depth_module = require("pj.depth")
+
+-- Get picker title with depth indicator
+local function get_title()
+  return string.format("PJ Projects (%s)", depth_module.get_display())
+end
+
 -- Custom format function with colored icons
 local function pj_format(item, picker)
   local ret = {}
@@ -27,6 +34,11 @@ M.open = function(opts)
   local config = require("pj.config").options
   local finder = require("pj.finder")
 
+  -- If depth is passed in opts, set it in the depth module so title reflects it
+  if opts.depth then
+    depth_module.set(opts.depth)
+  end
+
   -- Check binary
   if not finder.check_binary() then
     if config.behavior.notify_on_error then
@@ -44,25 +56,67 @@ M.open = function(opts)
     return
   end
 
-  -- Get projects
-  local projects, err = finder.get_projects(opts)
-  if err then
-    if config.behavior.notify_on_error then
-      vim.notify(err, vim.log.levels.ERROR)
+  -- Finder function that fetches projects (called on refresh)
+  local function pj_finder()
+    local projects, err = finder.get_projects(opts)
+    if err then
+      if config.behavior.notify_on_error then
+        vim.notify(err, vim.log.levels.ERROR)
+      end
+      return {}
     end
-    return
+    return projects or {}
   end
 
-  if not projects or #projects == 0 then
+  -- Initial check for projects
+  local initial_projects = pj_finder()
+  if #initial_projects == 0 then
     vim.notify("No projects found", vim.log.levels.WARN)
     return
   end
 
+  -- Build keymaps for depth control from config
+  local keymaps = config.keymaps or {}
+  local input_keys = {}
+  if keymaps.depth_increase then
+    input_keys[keymaps.depth_increase] = { "pj_depth_increase", mode = { "i", "n" }, desc = "Increase depth" }
+  end
+  if keymaps.depth_decrease then
+    input_keys[keymaps.depth_decrease] = { "pj_depth_decrease", mode = { "i", "n" }, desc = "Decrease depth" }
+  end
+
   -- Open the picker
   snacks.picker({
-    title = "PJ Projects",
-    items = projects,
+    title = get_title(),
+    finder = pj_finder,
     format = pj_format,
+    actions = {
+      pj_depth_increase = function(picker)
+        local _, changed = depth_module.increment()
+        if changed then
+          picker.title = get_title()
+          picker:update_titles()
+          picker:refresh()
+        else
+          vim.notify("Already at maximum depth", vim.log.levels.WARN)
+        end
+      end,
+      pj_depth_decrease = function(picker)
+        local _, changed = depth_module.decrement()
+        if changed then
+          picker.title = get_title()
+          picker:update_titles()
+          picker:refresh()
+        else
+          vim.notify("Already at minimum depth", vim.log.levels.WARN)
+        end
+      end,
+    },
+    win = {
+      input = {
+        keys = input_keys,
+      },
+    },
     confirm = function(picker, item)
       if not item then
         return

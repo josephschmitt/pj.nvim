@@ -1,5 +1,7 @@
 local M = {}
 
+local depth_module = require("pj.depth")
+
 M.open = function(opts)
   opts = opts or {}
   local config = require("pj.config").options
@@ -41,6 +43,13 @@ M.open = function(opts)
   -- Add runtime opts
   if opts.no_cache then
     table.insert(args, "--no-cache")
+  end
+
+  -- Add depth if set (from depth module state)
+  local depth = depth_module.get_current()
+  if depth then
+    table.insert(args, "--max-depth")
+    table.insert(args, tostring(depth))
   end
 
   local full_pj_cmd = pj_cmd

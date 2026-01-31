@@ -1,5 +1,12 @@
 local M = {}
 
+local depth_module = require("pj.depth")
+
+-- Get prompt with depth indicator
+local function get_prompt()
+  return string.format("PJ Projects (%s)> ", depth_module.get_display())
+end
+
 M.open = function(opts)
   opts = opts or {}
   local config = require("pj.config").options
@@ -106,10 +113,81 @@ M.open = function(opts)
 
   -- Get fzf-lua specific config
   local fzf_config = config.picker.fzf_lua or {}
+  local keymaps = config.keymaps or {}
+
+  -- Helper to convert Neovim key notation to fzf format
+  local function nvim_to_fzf_key(key)
+    if not key then return nil end
+    -- Handle arrow keys
+    key = key:gsub("<C%-Up>", "ctrl-up")
+    key = key:gsub("<C%-Down>", "ctrl-down")
+    key = key:gsub("<C%-Left>", "ctrl-left")
+    key = key:gsub("<C%-Right>", "ctrl-right")
+    -- Handle regular ctrl keys
+    key = key:gsub("<C%-", "ctrl-"):gsub(">", ""):lower()
+    return key
+  end
+
+  -- Build fzf options with depth keybindings in header
+  local depth_keys_info = ""
+  if keymaps.depth_increase and keymaps.depth_decrease then
+    -- Convert Neovim key notation to fzf-friendly display
+    local inc_display = nvim_to_fzf_key(keymaps.depth_increase):gsub("ctrl%-", "C-")
+    local dec_display = nvim_to_fzf_key(keymaps.depth_decrease):gsub("ctrl%-", "C-")
+    depth_keys_info = string.format(", %s/%s=depth", inc_display, dec_display)
+  end
+
+  -- Depth control actions that reload the picker
+  local function handle_depth_change(change_fn, fail_msg)
+    return function()
+      local _, changed = change_fn()
+      if changed then
+        vim.notify(depth_module.get_display(), vim.log.levels.INFO)
+        -- Reopen the picker with new depth
+        vim.schedule(function()
+          M.open(opts)
+        end)
+      else
+        vim.notify(fail_msg, vim.log.levels.WARN)
+      end
+    end
+  end
+
+  -- Build actions table
+  local actions_table = {
+    ["default"] = function(selected)
+      handle_selection(selected, {})
+    end,
+    ["ctrl-x"] = function(selected)
+      handle_selection(selected, { split = true })
+    end,
+    ["ctrl-v"] = function(selected)
+      handle_selection(selected, { vsplit = true })
+    end,
+    ["ctrl-t"] = function(selected)
+      handle_selection(selected, { tab = true })
+    end,
+  }
+
+  -- Add depth control actions if keymaps are configured
+  if keymaps.depth_increase then
+    local fzf_key = nvim_to_fzf_key(keymaps.depth_increase)
+    actions_table[fzf_key] = handle_depth_change(
+      depth_module.increment,
+      "Already at maximum depth"
+    )
+  end
+  if keymaps.depth_decrease then
+    local fzf_key = nvim_to_fzf_key(keymaps.depth_decrease)
+    actions_table[fzf_key] = handle_depth_change(
+      depth_module.decrement,
+      "Already at minimum depth"
+    )
+  end
 
   -- Configure and open fzf-lua
   fzf_lua.fzf_exec(entries, {
-    prompt = "PJ Projects> ",
+    prompt = get_prompt(),
     winopts = fzf_config.winopts or {
       height = 0.85,
       width = 0.80,
@@ -118,22 +196,9 @@ M.open = function(opts)
       cmd = fzf_config.preview.cmd or "ls -la",
       type = "cmd",
     } or nil,
-    actions = {
-      ["default"] = function(selected)
-        handle_selection(selected, {})
-      end,
-      ["ctrl-x"] = function(selected)
-        handle_selection(selected, { split = true })
-      end,
-      ["ctrl-v"] = function(selected)
-        handle_selection(selected, { vsplit = true })
-      end,
-      ["ctrl-t"] = function(selected)
-        handle_selection(selected, { tab = true })
-      end,
-    },
+    actions = actions_table,
     fzf_opts = {
-      ["--header"] = "Enter=open, C-x=split, C-v=vsplit, C-t=tab",
+      ["--header"] = "Enter=open, C-x=split, C-v=vsplit, C-t=tab" .. depth_keys_info,
       ["--ansi"] = "", -- Enable ANSI color codes
     },
   })

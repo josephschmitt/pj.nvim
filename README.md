@@ -407,7 +407,7 @@ Make sure the pj binary is installed and in your PATH:
 
 ```bash
 # Install pj
-go install github.com/jschaf/pj@latest
+go install github.com/josephschmitt/pj@latest
 
 # Or specify custom path in config
 require("pj").setup({
@@ -512,5 +512,5 @@ MIT
 
 ## Related Projects
 
-- [pj](https://github.com/jschaf/pj) - The underlying project finder
+- [pj](https://github.com/josephschmitt/pj) - The underlying project finder
 - [Snacks.nvim](https://github.com/folke/snacks.nvim) - The picker UI framework

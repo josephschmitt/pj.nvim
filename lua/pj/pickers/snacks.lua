@@ -122,8 +122,10 @@ M.open = function(opts)
         return
       end
 
-      -- Close the picker first
-      picker:close()
+      -- Close the picker if configured
+      if config.behavior.close_on_select then
+        picker:close()
+      end
 
       -- Handle different open modes based on opts
       if opts.split then

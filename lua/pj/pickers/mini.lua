@@ -171,7 +171,9 @@ M.open = function(opts)
       local matches = MiniPick.get_picker_matches()
       local item = matches and matches.current
       if item then
-        MiniPick.stop()
+        if config.behavior.close_on_select then
+          MiniPick.stop()
+        end
         vim.schedule(function()
           switch_to_project(item, mode)
         end)

@@ -98,12 +98,12 @@ M.open = function(opts)
   end
 
   -- Create action handlers
-  local function handle_selection(close, mode)
+  local function handle_selection(mode)
     return function(prompt_bufnr)
       local selection = action_state.get_selected_entry()
       if not selection then return end
 
-      if close then
+      if config.behavior.close_on_select then
         actions.close(prompt_bufnr)
       end
 
@@ -177,10 +177,10 @@ M.open = function(opts)
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       -- Map actions
-      actions.select_default:replace(handle_selection(true, nil))
-      map("i", "<C-x>", handle_selection(true, "split"))
-      map("i", "<C-v>", handle_selection(true, "vsplit"))
-      map("i", "<C-t>", handle_selection(true, "tab"))
+      actions.select_default:replace(handle_selection(nil))
+      map("i", "<C-x>", handle_selection("split"))
+      map("i", "<C-v>", handle_selection("vsplit"))
+      map("i", "<C-t>", handle_selection("tab"))
 
       -- Map depth controls
       if keymaps.depth_increase then

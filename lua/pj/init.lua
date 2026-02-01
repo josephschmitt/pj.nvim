@@ -27,6 +27,12 @@ M.open = function(opts)
   local config = require("pj.config").options
   local finder = require("pj.finder")
 
+  -- In auto mode, check for updates asynchronously (non-blocking)
+  if config.pj.cmd == "auto" then
+    local binary = require("pj.binary")
+    binary.check_and_notify_updates()
+  end
+
   -- In auto mode, ensure binary is available before opening picker
   if config.pj.cmd == "auto" and not finder.check_binary() then
     vim.notify("Downloading pj binary...", vim.log.levels.INFO)

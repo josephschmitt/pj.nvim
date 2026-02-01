@@ -54,6 +54,11 @@ M.check = function()
     local auto_config = config.pj.auto or {}
     health.info("Prefer system binary: " .. tostring(auto_config.prefer_system ~= false))
     health.info("Check for updates: " .. tostring(auto_config.check_updates ~= false))
+    health.info("Auto-update: " .. tostring(auto_config.auto_update ~= false))
+    health.info("Update interval: " .. tostring(auto_config.update_interval or 7) .. " days")
+    if status.last_check then
+      health.info("Last update check: " .. status.last_check)
+    end
     if status.system_available then
       health.info("System binary available: yes")
     end

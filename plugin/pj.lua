@@ -45,3 +45,36 @@ if vim.fn.exists(":PjCd") == 0 then
     desc = "Change to project directory",
   })
 end
+
+-- Binary management commands (for auto mode)
+if vim.fn.exists(":PjCheckUpdates") == 0 then
+  vim.api.nvim_create_user_command("PjCheckUpdates", function()
+    require("pj.binary").check_for_updates_manual()
+  end, {
+    desc = "Check for pj binary updates",
+  })
+end
+
+if vim.fn.exists(":PjUpdate") == 0 then
+  vim.api.nvim_create_user_command("PjUpdate", function()
+    require("pj.binary").update_with_progress()
+  end, {
+    desc = "Update pj binary to latest version",
+  })
+end
+
+if vim.fn.exists(":PjReinstall") == 0 then
+  vim.api.nvim_create_user_command("PjReinstall", function()
+    require("pj.binary").reinstall()
+  end, {
+    desc = "Force reinstall pj binary",
+  })
+end
+
+if vim.fn.exists(":PjUninstall") == 0 then
+  vim.api.nvim_create_user_command("PjUninstall", function()
+    require("pj.binary").uninstall()
+  end, {
+    desc = "Remove auto-downloaded pj binary",
+  })
+end

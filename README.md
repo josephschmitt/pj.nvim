@@ -18,6 +18,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 - 💼 Optional session manager integration (auto-session, persistence.nvim)
 - 🔧 Extensible architecture for adding more pickers
 - 📦 **Automatic pj binary installation** - Downloads the correct binary for your platform
+- 🔄 **Automatic updates** - Keeps the pj binary up to date automatically
 
 ## Requirements
 
@@ -27,6 +28,8 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 
 **pj Binary:**
 The [pj](https://github.com/josephschmitt/pj) binary is **automatically downloaded** on first use. No manual installation required! The plugin detects your platform (macOS, Linux, or Windows) and architecture (Intel or ARM) and downloads the appropriate binary.
+
+**Important:** If you have pj installed globally (in your PATH), it will be used instead of the auto-downloaded version. The plugin prefers system binaries by default (configurable via `prefer_system` option).
 
 If you prefer to install pj manually, see [Manual pj Installation](#manual-pj-installation).
 
@@ -173,8 +176,9 @@ require("pj").setup({
     cache = true,                  -- Use pj's built-in cache
     -- Auto-download settings (used when cmd = "auto")
     auto = {
-      prefer_system = true,        -- Use system binary if available in PATH
+      prefer_system = true,        -- Use system binary if available (default: true)
       check_updates = true,        -- Check for newer versions periodically
+      auto_update = true,          -- Automatically install updates when found
       update_interval = 7,         -- Days between update checks
       github_repo = "josephschmitt/pj", -- GitHub repo for releases
     },
@@ -424,6 +428,10 @@ require("pj").setup({
 - `:Pj` - Open the project picker
 - `:Pj depth=N` - Open picker at specific depth (e.g., `:Pj depth=2`)
 - `:PjCd` - Open picker (alias for changing directory)
+- `:PjCheckUpdates` - Check for pj binary updates
+- `:PjUpdate` - Update pj binary to latest version
+- `:PjReinstall` - Force reinstall pj binary (for troubleshooting)
+- `:PjUninstall` - Remove auto-downloaded pj binary
 
 ### Keymaps
 
@@ -467,6 +475,15 @@ The health check will verify:
 - Show all available pickers and their status
 
 ## Troubleshooting
+
+### Binary Priority
+
+When `pj.cmd = "auto"` (the default), the plugin uses binaries in this order:
+1. **System binary** - If pj is found in your PATH (when `prefer_system = true`)
+2. **Auto-downloaded binary** - Falls back to cached binary if no system binary found
+3. **Auto-download** - Downloads binary on first use if neither exists
+
+This means if you install pj globally later, it will automatically be used instead of the auto-downloaded version.
 
 ### "pj binary not found"
 
@@ -601,6 +618,7 @@ Make sure you have a Nerd Font installed and configured in your terminal.
 - [x] Support for FZF picker
 - [x] Support for television picker
 - [x] Automatic pj binary installation
+- [x] Automatic pj binary updates
 - [ ] Custom project actions
 - [ ] Recent projects tracking
 - [ ] Project-specific configurations

@@ -12,6 +12,7 @@ M.defaults = {
     auto = {
       prefer_system = true, -- Use system binary if available
       check_updates = true, -- Check for newer versions periodically
+      auto_update = true, -- Automatically install updates when found
       update_interval = 7, -- Days between update checks
       github_repo = "josephschmitt/pj", -- GitHub repo for releases
     },

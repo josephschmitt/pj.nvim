@@ -3,11 +3,18 @@ local M = {}
 M.defaults = {
   -- pj binary settings
   pj = {
-    cmd = "pj",
+    cmd = "auto", -- "auto", "pj", or "/path/to/pj"
     args = {},
     icons = true,
     cache = true,
     json = true,
+    -- Auto-download settings (used when cmd = "auto")
+    auto = {
+      prefer_system = true, -- Use system binary if available
+      check_updates = true, -- Check for newer versions periodically
+      update_interval = 7, -- Days between update checks
+      github_repo = "josephschmitt/pj", -- GitHub repo for releases
+    },
   },
 
   -- Picker settings

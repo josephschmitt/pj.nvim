@@ -8,7 +8,59 @@ M.check = function()
   health.start("pj.nvim")
 
   -- Check pj binary
-  if finder.check_binary() then
+  if config.pj.cmd == "auto" then
+    -- Auto mode - show detailed status
+    local binary = require("pj.binary")
+    local status = binary.get_status()
+    local platform_info = binary.get_platform_info()
+
+    health.info("Mode: auto-download")
+    health.info("Platform: " .. (platform_info.os or "unknown") .. "_" .. (platform_info.arch or "unknown"))
+
+    if not platform_info.supported then
+      health.error("Platform not supported: " .. (platform_info.error or "unknown error"), {
+        "Auto-download supports: macOS (Intel/ARM), Linux (x64/ARM), Windows (x64/ARM)",
+        "Install pj manually from: https://github.com/josephschmitt/pj",
+      })
+    elseif status.active_binary == "system" then
+      health.ok("Using system pj binary")
+      local version = vim.fn.system("pj --version 2>&1")
+      if vim.v.shell_error == 0 then
+        health.info("pj version: " .. vim.trim(version))
+      end
+    elseif status.active_binary == "cached" then
+      health.ok("Using auto-downloaded pj binary")
+      health.info("Binary path: " .. status.cached_path)
+      if status.version then
+        health.info("pj version: " .. status.version)
+      end
+      if status.installed_at then
+        health.info("Installed: " .. status.installed_at)
+      end
+    else
+      health.warn("pj binary not yet downloaded", {
+        "Binary will be downloaded automatically on first use",
+        "Or run :lua require('pj.binary').ensure_binary()",
+        "Requires curl to be installed",
+      })
+      if vim.fn.executable("curl") ~= 1 then
+        health.error("curl not found (required for auto-download)", {
+          "Install curl or set pj.cmd to a specific path",
+        })
+      end
+    end
+
+    -- Show auto-download settings
+    local auto_config = config.pj.auto or {}
+    health.info("Prefer system binary: " .. tostring(auto_config.prefer_system ~= false))
+    health.info("Check for updates: " .. tostring(auto_config.check_updates ~= false))
+    if status.system_available then
+      health.info("System binary available: yes")
+    end
+    if status.cached_available then
+      health.info("Cached binary available: yes")
+    end
+  elseif finder.check_binary() then
     health.ok("pj binary found: " .. config.pj.cmd)
 
     -- Try to get version
@@ -18,8 +70,9 @@ M.check = function()
     end
   else
     health.error("pj binary not found", {
-      "Install pj from: https://github.com/jschaf/pj",
+      "Install pj from: https://github.com/josephschmitt/pj",
       "Or configure custom path in setup(): require('pj').setup({ pj = { cmd = '/path/to/pj' } })",
+      "Or use auto-download: require('pj').setup({ pj = { cmd = 'auto' } })",
     })
   end
 

@@ -17,12 +17,18 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 - 🗂️ Tab-local directory changing (matches Snacks behavior)
 - 💼 Optional session manager integration (auto-session, persistence.nvim)
 - 🔧 Extensible architecture for adding more pickers
+- 📦 **Automatic pj binary installation** - Downloads the correct binary for your platform
 
 ## Requirements
 
 **Core:**
 - Neovim >= 0.9.0
-- [pj](https://github.com/josephschmitt/pj) - Project finder binary
+- `curl` - For automatic binary download (optional if pj is installed manually)
+
+**pj Binary:**
+The [pj](https://github.com/josephschmitt/pj) binary is **automatically downloaded** on first use. No manual installation required! The plugin detects your platform (macOS, Linux, or Windows) and architecture (Intel or ARM) and downloads the appropriate binary.
+
+If you prefer to install pj manually, see [Manual pj Installation](#manual-pj-installation).
 
 **Picker UI (choose one or more):**
 - [Snacks.nvim](https://github.com/folke/snacks.nvim) - For `snacks` picker (default)
@@ -161,10 +167,17 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 require("pj").setup({
   -- pj binary settings
   pj = {
-    cmd = "pj",                    -- Path to pj binary
+    cmd = "auto",                  -- "auto" (default), "pj", or "/path/to/pj"
     args = {},                     -- Additional arguments to pass to pj
     icons = true,                  -- Use icons in the picker
     cache = true,                  -- Use pj's built-in cache
+    -- Auto-download settings (used when cmd = "auto")
+    auto = {
+      prefer_system = true,        -- Use system binary if available in PATH
+      check_updates = true,        -- Check for newer versions periodically
+      update_interval = 7,         -- Days between update checks
+      github_repo = "josephschmitt/pj", -- GitHub repo for releases
+    },
   },
 
   -- Picker settings
@@ -380,12 +393,26 @@ require("pj").setup({
 })
 ```
 
-#### Use a custom pj binary path
+#### Use a specific pj binary
+
+```lua
+-- Use system pj (must be in PATH)
+require("pj").setup({
+  pj = { cmd = "pj" },
+})
+
+-- Or specify exact path
+require("pj").setup({
+  pj = { cmd = "/usr/local/bin/pj" },
+})
+```
+
+#### Disable auto-download (require manual installation)
 
 ```lua
 require("pj").setup({
   pj = {
-    cmd = "/usr/local/bin/pj",
+    cmd = "pj",  -- Will error if pj is not in PATH
   },
 })
 ```
@@ -432,8 +459,9 @@ require("pj").cd()
 Run `:checkhealth pj` to verify your installation and configuration.
 
 The health check will verify:
-- pj binary is installed and accessible
-- Your configured picker is available (Snacks/Telescope/fzf-lua)
+- pj binary status (auto-download mode, system binary, or custom path)
+- Platform detection and compatibility
+- Your configured picker is available (Snacks/Telescope/fzf-lua/tv/mini.pick)
 - Configuration is valid
 - Projects can be discovered
 - Show all available pickers and their status
@@ -442,13 +470,38 @@ The health check will verify:
 
 ### "pj binary not found"
 
-Make sure the pj binary is installed and in your PATH:
+By default, pj.nvim automatically downloads the pj binary on first use. If auto-download fails:
+
+1. **Check curl is installed** - Required for downloading
+2. **Check your internet connection**
+3. **Run `:checkhealth pj`** - Shows detailed status and troubleshooting info
+
+You can also manually trigger a download:
+```lua
+:lua require('pj.binary').ensure_binary()
+```
+
+### Manual pj Installation
+
+If you prefer to install pj manually instead of using auto-download:
 
 ```bash
-# Install pj
+# Using Go
 go install github.com/josephschmitt/pj@latest
 
-# Or specify custom path in config
+# Or download from GitHub releases
+# https://github.com/josephschmitt/pj/releases
+```
+
+Then configure pj.nvim to use the system binary:
+```lua
+require("pj").setup({
+  pj = { cmd = "pj" }  -- Use system binary instead of auto-download
+})
+```
+
+Or specify a custom path:
+```lua
 require("pj").setup({
   pj = { cmd = "/path/to/pj" }
 })
@@ -547,6 +600,7 @@ Make sure you have a Nerd Font installed and configured in your terminal.
 - [x] Support for Telescope picker
 - [x] Support for FZF picker
 - [x] Support for television picker
+- [x] Automatic pj binary installation
 - [ ] Custom project actions
 - [ ] Recent projects tracking
 - [ ] Project-specific configurations

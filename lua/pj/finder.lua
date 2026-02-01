@@ -1,10 +1,29 @@
 local M = {}
 
+-- Get the pj binary command to use
+M.get_binary_cmd = function()
+  local config = require("pj.config").options
+
+  if config.pj.cmd == "auto" then
+    local binary = require("pj.binary")
+    local path = binary.get_binary_path()
+    return path
+  else
+    return config.pj.cmd
+  end
+end
+
 -- Execute pj binary and return projects
 M.get_projects = function(opts)
   opts = opts or {}
   local config = require("pj.config").options
-  local cmd_args = { config.pj.cmd }
+  local binary_cmd = M.get_binary_cmd()
+
+  if not binary_cmd then
+    return nil, "pj binary not available. Run :checkhealth pj for more info."
+  end
+
+  local cmd_args = { binary_cmd }
 
   -- Add default args from config
   for _, arg in ipairs(config.pj.args) do
@@ -132,7 +151,28 @@ end
 -- Check if pj binary exists
 M.check_binary = function()
   local config = require("pj.config").options
-  return vim.fn.executable(config.pj.cmd) == 1
+
+  if config.pj.cmd == "auto" then
+    local binary = require("pj.binary")
+    local path = binary.get_binary_path()
+    return path ~= nil and vim.fn.executable(path) == 1
+  else
+    return vim.fn.executable(config.pj.cmd) == 1
+  end
+end
+
+-- Ensure binary is available (async, triggers download in auto mode)
+M.ensure_binary = function(callback)
+  local config = require("pj.config").options
+
+  if config.pj.cmd == "auto" then
+    local binary = require("pj.binary")
+    binary.ensure_binary(callback)
+  else
+    if callback then
+      callback(M.check_binary(), nil)
+    end
+  end
 end
 
 return M

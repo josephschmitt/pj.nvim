@@ -45,6 +45,12 @@ M.defaults = {
         size = 50, -- Preview window size percentage
       },
     },
+
+    -- mini.pick specific settings
+    mini = {
+      window = {}, -- Window config overrides (passed to MiniPick.start)
+      show = nil, -- Custom show function (nil uses built-in pj_show)
+    },
   },
 
   -- Behavior settings

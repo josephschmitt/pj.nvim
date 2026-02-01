@@ -14,6 +14,9 @@ M.pickers = {
   tv = function()
     return require("pj.pickers.tv")
   end,
+  ["mini.pick"] = function()
+    return require("pj.pickers.mini")
+  end,
 }
 
 -- Get the configured picker

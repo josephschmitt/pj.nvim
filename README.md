@@ -7,7 +7,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 ## Features
 
 - 🚀 Fast project discovery using the pj binary
-- 🎨 Multiple picker UIs: **Snacks**, **Telescope**, **fzf-lua**, **tv (television)**
+- 🎨 Multiple picker UIs: **Snacks**, **Telescope**, **fzf-lua**, **tv (television)**, **mini.pick**
 - 🔍 Fuzzy search through your projects
 - 📁 Instantly switch to project directories
 - 💾 Leverages pj's intelligent caching
@@ -29,6 +29,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 - [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) - For `telescope` picker
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua) - For `fzf_lua` picker
 - [television](https://github.com/alexpasmantier/television) - For `tv` picker
+- [mini.pick](https://github.com/nvim-mini/mini.pick) or [mini.nvim](https://github.com/nvim-mini/mini.nvim) - For `mini.pick` picker
 
 **Optional:**
 - [Nerd Fonts](https://www.nerdfonts.com/) - For icon display
@@ -110,6 +111,25 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
 
 **Note:** The `tv` picker requires the [television](https://github.com/alexpasmantier/television) binary to be installed. It does not require tv.nvim.
 
+### With mini.pick
+
+```lua
+-- Using lazy.nvim
+{
+  "josephschmitt/pj.nvim",
+  dependencies = {
+    "nvim-mini/mini.pick", -- or "nvim-mini/mini.nvim"
+  },
+  cmd = { "Pj", "PjCd" },
+  keys = {
+    { "<leader>fp", "<cmd>Pj<cr>", desc = "Find Projects" },
+  },
+  opts = {
+    picker = { type = "mini.pick" },
+  },
+}
+```
+
 ### With All Pickers (for flexibility)
 
 ```lua
@@ -120,6 +140,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
     "folke/snacks.nvim",
     "nvim-telescope/telescope.nvim",
     "ibhagwan/fzf-lua",
+    "nvim-mini/mini.pick",
   },
   cmd = { "Pj", "PjCd" },
   keys = {
@@ -127,7 +148,7 @@ A Neovim plugin for quickly finding and navigating to projects using [pj](https:
   },
   opts = {
     -- You can switch between pickers anytime by changing the type
-    picker = { type = "snacks" }, -- or "telescope", "fzf_lua", or "tv"
+    picker = { type = "snacks" }, -- or "telescope", "fzf_lua", "tv", or "mini.pick"
   },
 }
 ```
@@ -148,7 +169,7 @@ require("pj").setup({
 
   -- Picker settings
   picker = {
-    type = "snacks",               -- Picker type: "snacks", "telescope", "fzf_lua", or "tv"
+    type = "snacks",               -- Picker type: "snacks", "telescope", "fzf_lua", "tv", or "mini.pick"
 
     -- fzf-lua specific settings
     fzf_lua = {
@@ -317,6 +338,24 @@ require("pj").setup({
 })
 ```
 
+#### Using mini.pick with custom window
+
+```lua
+require("pj").setup({
+  picker = {
+    type = "mini.pick",
+    mini = {
+      window = {
+        config = {
+          width = 80,
+          height = 20,
+        },
+      },
+    },
+  },
+})
+```
+
 #### Custom pj configuration
 
 ```lua
@@ -459,6 +498,16 @@ cargo install television
 # Or download from: https://github.com/alexpasmantier/television/releases
 ```
 
+**For mini.pick picker:**
+```lua
+-- Make sure mini.pick is installed
+{
+  "nvim-mini/mini.pick",
+  -- or use the full mini.nvim if you want other mini modules
+  -- "nvim-mini/mini.nvim",
+}
+```
+
 ### Switching between pickers
 
 You can easily switch pickers by changing the configuration:
@@ -466,7 +515,7 @@ You can easily switch pickers by changing the configuration:
 ```lua
 require("pj").setup({
   picker = {
-    type = "telescope", -- Change to "snacks", "telescope", "fzf_lua", or "tv"
+    type = "telescope", -- Change to "snacks", "telescope", "fzf_lua", "tv", or "mini.pick"
   },
 })
 ```

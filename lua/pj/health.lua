@@ -81,9 +81,19 @@ M.check = function()
         "Or configure custom path in setup(): require('pj').setup({ picker = { tv = { tv_binary = '/path/to/tv' } } })",
       })
     end
+  elseif picker_type == "mini" then
+    local ok = pcall(require, "mini.pick")
+    if ok then
+      health.ok("mini.pick found")
+    else
+      health.error("mini.pick not found", {
+        "Install nvim-mini/mini.pick or nvim-mini/mini.nvim",
+        "Add to your plugin manager: 'nvim-mini/mini.pick' or 'nvim-mini/mini.nvim'",
+      })
+    end
   else
     health.error("Unknown picker type: " .. picker_type, {
-      "Supported picker types: snacks, fzf_lua, telescope, tv",
+      "Supported picker types: snacks, fzf_lua, telescope, tv, mini",
       "Change picker.type in your configuration",
     })
   end
@@ -102,6 +112,8 @@ M.check = function()
     elseif name == "tv" then
       local tv_binary = config.picker.tv and config.picker.tv.tv_binary or "tv"
       dep_ok = vim.fn.executable(tv_binary) == 1
+    elseif name == "mini" then
+      dep_ok = pcall(require, "mini.pick")
     end
 
     local status = dep_ok and "✓" or "✗"

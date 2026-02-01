@@ -122,6 +122,9 @@ M.open = function(opts)
         return
       end
 
+      -- Close the picker first
+      picker:close()
+
       -- Handle different open modes based on opts
       if opts.split then
         vim.cmd("split")

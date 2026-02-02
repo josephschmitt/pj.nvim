@@ -1,0 +1,9 @@
+# Lefthook configuration for pj.nvim
+# Install: brew install lefthook OR npm install -g lefthook
+# Setup: lefthook install
+
+pre-push:
+  commands:
+    tests:
+      run: make test
+      fail_text: "Tests failed. Please fix before pushing."

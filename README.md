@@ -660,6 +660,22 @@ tests/
     └── projects_no_icons.txt
 ```
 
+### Git Hooks
+
+This project uses [lefthook](https://github.com/evilmartians/lefthook) for pre-push hooks to run tests automatically.
+
+```bash
+# Install lefthook (choose one)
+brew install lefthook
+# or: npm install -g lefthook
+# or: go install github.com/evilmartians/lefthook@latest
+
+# Enable hooks for this repo
+lefthook install
+```
+
+Once installed, tests will run automatically before each `git push`.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -1,0 +1,5 @@
+🦀 ~/projects/my-rust-app
+📦 ~/projects/node-server
+🐹 ~/work/go-service
+ ~/dotfiles
+🐍 ~/projects/python-ml

@@ -1,0 +1,13 @@
+# Test dependencies
+test-deps/
+
+# Neovim swap files
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Lua bytecode
+*.luac

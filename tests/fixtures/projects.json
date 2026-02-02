@@ -1,0 +1,34 @@
+{
+  "projects": [
+    {
+      "path": "~/projects/my-rust-app",
+      "name": "my-rust-app",
+      "marker": "Cargo.toml",
+      "icon": "🦀"
+    },
+    {
+      "path": "~/projects/node-server",
+      "name": "node-server",
+      "marker": "package.json",
+      "icon": "📦"
+    },
+    {
+      "path": "~/work/go-service",
+      "name": "go-service",
+      "marker": "go.mod",
+      "icon": "🐹"
+    },
+    {
+      "path": "~/dotfiles",
+      "name": "dotfiles",
+      "marker": ".git",
+      "icon": ""
+    },
+    {
+      "path": "~/projects/python-ml",
+      "name": "python-ml",
+      "marker": "pyproject.toml",
+      "icon": "🐍"
+    }
+  ]
+}

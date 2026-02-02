@@ -623,9 +623,51 @@ Make sure you have a Nerd Font installed and configured in your terminal.
 - [ ] Recent projects tracking
 - [ ] Project-specific configurations
 
+## Development
+
+### Running Tests
+
+The plugin uses [mini.test](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-test.md) for testing.
+
+```bash
+# Install test dependencies
+make deps
+
+# Run all tests
+make test
+
+# Run a specific test file
+make test-file FILE=tests/unit/depth_spec.lua
+```
+
+### Test Structure
+
+```
+tests/
+├── init.lua              # Test runner entry point
+├── helpers.lua           # Shared test utilities and mocks
+├── minimal_init.lua      # Minimal Neovim config for tests
+├── unit/                 # Unit tests
+│   ├── config_spec.lua   # Configuration tests
+│   ├── depth_spec.lua    # Depth state machine tests
+│   ├── finder_spec.lua   # Parser function tests
+│   ├── icons_spec.lua    # Icon lookup tests
+│   ├── session_spec.lua  # Session/directory switching tests
+│   └── utils_spec.lua    # Utility function tests
+└── fixtures/             # Test data
+    ├── projects.json     # Sample JSON output from pj
+    ├── projects.txt      # Sample text output with icons
+    └── projects_no_icons.txt
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+Before submitting, please ensure tests pass:
+```bash
+make test
+```
 
 ## License
 

@@ -12,6 +12,35 @@ M.change_directory = function(path, config)
   vim.cmd(cmd .. " " .. vim.fn.fnameescape(path))
 end
 
+-- Save current session if session manager supports it
+local function save_current_session(config)
+  if config.behavior.session_manager == "auto-session" then
+    local ok, auto_session = pcall(require, "auto-session")
+    if ok then
+      local save = auto_session.save_session or auto_session.SaveSession
+      if save then
+        save()
+      end
+    end
+  elseif config.behavior.session_manager == "persistence" then
+    local ok, persistence = pcall(require, "persistence")
+    if ok and persistence.save then
+      persistence.save()
+    end
+  end
+end
+
+-- Clear all buffers and windows to prepare for a new session
+local function clear_buffers()
+  -- Delete all buffers to remove old project files from the buffer list
+  vim.cmd("silent! %bdelete!")
+end
+
+-- Open a scratch buffer so the user isn't left with an empty editor
+local function open_fallback_buffer()
+  vim.cmd("enew")
+end
+
 -- Load session if session manager is configured
 M.load_session = function(path, config)
   config = config or require("pj.config").options
@@ -23,15 +52,45 @@ M.load_session = function(path, config)
   -- Try to load session based on configured manager
   if config.behavior.session_manager == "auto-session" then
     local ok, auto_session = pcall(require, "auto-session")
-    if ok and auto_session.RestoreSession then
-      -- Change to directory first for auto-session to find the session
-      M.change_directory(path, config)
-      auto_session.RestoreSession()
+    if ok then
+      -- Save the current session before switching away
+      save_current_session(config)
+
+      -- Clear existing buffers so old project files don't linger
+      clear_buffers()
+
+      -- Use global cd for session restore compatibility (auto-session
+      -- resolves sessions from the global cwd)
+      vim.cmd("cd " .. vim.fn.fnameescape(path))
+
+      -- Restore session for the new directory, preferring the modern API
+      local restore = auto_session.restore_session or auto_session.RestoreSession
+      local restored = false
+      if restore then
+        -- restore_session returns true/false; RestoreSession may not
+        local restore_ok, result = pcall(restore)
+        restored = restore_ok and result ~= false
+      end
+
+      -- If no session existed for this project, ensure the user still
+      -- has a usable buffer instead of a blank editor
+      if not restored then
+        open_fallback_buffer()
+      end
+
+      -- Set tab-local directory after session restore so it isn't
+      -- overwritten by cd commands inside the session file
+      if config.behavior.cd_scope == "tab" then
+        vim.cmd("tcd " .. vim.fn.fnameescape(path))
+      end
+
       return true
     end
   elseif config.behavior.session_manager == "persistence" then
     local ok, persistence = pcall(require, "persistence")
     if ok and persistence.load then
+      save_current_session(config)
+      clear_buffers()
       M.change_directory(path, config)
       persistence.load()
       return true

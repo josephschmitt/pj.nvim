@@ -16,8 +16,11 @@ end
 local function save_current_session(config)
   if config.behavior.session_manager == "auto-session" then
     local ok, auto_session = pcall(require, "auto-session")
-    if ok and auto_session.SaveSession then
-      auto_session.SaveSession()
+    if ok then
+      local save = auto_session.save_session or auto_session.SaveSession
+      if save then
+        save()
+      end
     end
   elseif config.behavior.session_manager == "persistence" then
     local ok, persistence = pcall(require, "persistence")
@@ -31,6 +34,11 @@ end
 local function clear_buffers()
   -- Delete all buffers to remove old project files from the buffer list
   vim.cmd("silent! %bdelete!")
+end
+
+-- Open a scratch buffer so the user isn't left with an empty editor
+local function open_fallback_buffer()
+  vim.cmd("enew")
 end
 
 -- Load session if session manager is configured
@@ -51,13 +59,23 @@ M.load_session = function(path, config)
       -- Clear existing buffers so old project files don't linger
       clear_buffers()
 
-      -- For tab scope, use global cd for session restore compatibility,
-      -- then set tab-local directory afterward
+      -- Use global cd for session restore compatibility (auto-session
+      -- resolves sessions from the global cwd)
       vim.cmd("cd " .. vim.fn.fnameescape(path))
 
-      -- Restore session for the new directory
-      if auto_session.RestoreSession then
-        auto_session.RestoreSession()
+      -- Restore session for the new directory, preferring the modern API
+      local restore = auto_session.restore_session or auto_session.RestoreSession
+      local restored = false
+      if restore then
+        -- restore_session returns true/false; RestoreSession may not
+        local restore_ok, result = pcall(restore)
+        restored = restore_ok and result ~= false
+      end
+
+      -- If no session existed for this project, ensure the user still
+      -- has a usable buffer instead of a blank editor
+      if not restored then
+        open_fallback_buffer()
       end
 
       -- Set tab-local directory after session restore so it isn't
